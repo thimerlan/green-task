@@ -1,0 +1,29 @@
+.contactsContainer {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  margin-top: 0px;
+  height: 80%;
+}
+
+.contactsPanel {
+  flex: 0 0 300px;
+  background-color: #3e3b3b;
+  padding: 15px;
+  border-radius: 1ex;
+  h2 {
+    font-size: 25px;
+    color: #3e73dd;
+  }
+}
+
+.contact {
+  padding: 10px;
+  border-bottom: 1px solid #3e73dd;
+  cursor: pointer;
+  color: #ebebeb;
+}
+
+.contact:hover {
+  background-color: #2a4142c2;
+}
