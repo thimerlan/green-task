@@ -9,9 +9,7 @@ import ChatConversation from "../ChatConversation/ChatConversation";
 interface ChatProps {}
 const Chat = (props: ChatProps) => {
   const [message, setMessage] = useState<string>("");
-  const [chatConversation, setChatConversation] = useState<IChatConversation[]>(
-    []
-  );
+
   const [contacts, setContacts] = useState<IContact[]>([]);
   const [selectedContact, setSelectedContact] = useState<IContact | null>(null);
   const [errorMessage, setErrorMessage] = useState<any>();
@@ -34,6 +32,7 @@ const Chat = (props: ChatProps) => {
     setMessage("");
     setErrorMessage("");
   }, [selectedContact]);
+
   const handleSendMessage = async (token: string, id: string) => {
     if (message) {
       try {
@@ -41,16 +40,54 @@ const Chat = (props: ChatProps) => {
           `https://api.green-api.com/waInstance${id}/SendMessage/${token}`,
           { chatId: selectedContact?.chatId, message }
         );
+        const updatedContactIndex = contacts.findIndex(
+          (contact) => contact.chatId === selectedContact?.chatId
+        );
+        if (updatedContactIndex !== -1) {
+          const updatedContacts = [...contacts];
+          const updatedContact = { ...updatedContacts[updatedContactIndex] };
+          const chatConversation = updatedContact.chatConversation || [];
 
-        setChatConversation((prevConversation) => [
-          ...prevConversation,
-          {
+          const newChatMessage: IChatConversation = {
             myMessage: message,
             myMessageId: response.data.idMessage,
             theirMessage: "",
             theirMessageId: "",
-          },
-        ]);
+          };
+
+          chatConversation.push(newChatMessage);
+
+          updatedContact.chatConversation = chatConversation;
+          updatedContacts[updatedContactIndex] = updatedContact;
+
+          setContacts(updatedContacts);
+        }
+
+        setSelectedContact((prevState) => {
+          if (prevState) {
+            const updatedChatConversation: IChatConversation = {
+              myMessage: message,
+              myMessageId: response.data.idMessage,
+              theirMessage: "",
+              theirMessageId: "",
+              status: "",
+            };
+
+            const filteredChatConversation = prevState.chatConversation?.filter(
+              (message) => message.theirMessageId !== response.data.idMessage
+            );
+
+            return {
+              ...prevState,
+              chatConversation: [
+                ...(filteredChatConversation || []),
+                updatedChatConversation,
+              ],
+            };
+          }
+
+          return null;
+        });
 
         setMessage("");
         setErrorMessage("");
@@ -61,7 +98,6 @@ const Chat = (props: ChatProps) => {
       }
     }
   };
-
   const handleFormSending = (event: React.FormEvent) => {
     event.preventDefault();
     const authData = localStorage.getItem("authData");
@@ -75,9 +111,10 @@ const Chat = (props: ChatProps) => {
     handleSendMessage(authToken, idInstance);
   };
 
-  const handleContactClick = useCallback((contact: IContact) => {
+  const handleContactClick = (contact: IContact) => {
     setSelectedContact(contact);
-  }, []);
+  };
+
   const getMessages = async () => {
     try {
       const authData = localStorage.getItem("authData");
@@ -91,23 +128,82 @@ const Chat = (props: ChatProps) => {
       const responseData = response.data;
 
       if (responseData && responseData.body) {
-        const { typeWebhook, messageData, idMessage } = responseData.body;
+        const { typeWebhook, messageData, idMessage, senderData } =
+          responseData.body;
 
         if (typeWebhook === "incomingMessageReceived") {
-          setChatConversation((prevConversation) =>
-            prevConversation.filter(
-              (message) => message.theirMessageId !== idMessage
-            )
+          const updatedContactIndex = contacts.findIndex(
+            (contact) => contact.chatId === senderData?.chatId
           );
-          setChatConversation((prevConversation) => [
-            ...prevConversation,
-            {
+
+          if (updatedContactIndex !== -1) {
+            const updatedContacts = [...contacts];
+            const updatedContact = { ...updatedContacts[updatedContactIndex] };
+            const chatConversation = updatedContact.chatConversation || [];
+
+            const newChatMessage: IChatConversation = {
               myMessage: "",
               myMessageId: "",
               theirMessage: messageData.textMessageData.textMessage,
               theirMessageId: idMessage,
-            },
-          ]);
+            };
+
+            chatConversation.push(newChatMessage);
+
+            updatedContact.chatConversation = chatConversation;
+            updatedContacts[updatedContactIndex] = updatedContact;
+
+            setContacts(updatedContacts);
+            setSelectedContact((prevState) => {
+              if (prevState) {
+                const updatedChatConversation: IChatConversation = {
+                  myMessage: "",
+                  myMessageId: "",
+                  theirMessage: messageData.textMessageData.textMessage,
+                  theirMessageId: idMessage,
+                };
+
+                const filteredChatConversation =
+                  prevState.chatConversation?.filter(
+                    (message) => message.theirMessageId !== idMessage
+                  );
+
+                return {
+                  ...prevState,
+                  chatConversation: [
+                    ...(filteredChatConversation || []),
+                    updatedChatConversation,
+                  ],
+                };
+              }
+
+              return null;
+            });
+          }
+        }
+        if (typeWebhook === "outgoingMessageStatus") {
+          const updatedContactIndex = contacts.findIndex(
+            (contact) => contact.chatId === selectedContact?.chatId
+          );
+
+          if (updatedContactIndex !== -1) {
+            const updatedContacts = [...contacts];
+            const updatedContact = { ...updatedContacts[updatedContactIndex] };
+            const chatConversation = updatedContact.chatConversation || [];
+
+            const updatedChatConversation = chatConversation.map((message) => {
+              if (message.myMessageId === responseData.body.idMessage) {
+                return {
+                  ...message,
+                  status: responseData.body.status,
+                };
+              }
+              return message;
+            });
+            updatedContact.chatConversation = updatedChatConversation;
+            updatedContacts[updatedContactIndex] = updatedContact;
+            setContacts(updatedContacts);
+          }
         }
 
         if (response.data.receiptId) {
@@ -127,7 +223,7 @@ const Chat = (props: ChatProps) => {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [selectedContact]);
 
   return (
     <div className="chatContainer">
@@ -145,7 +241,10 @@ const Chat = (props: ChatProps) => {
         selectedContact={selectedContact}
       />
       {selectedContact && (
-        <ChatConversation chatConversation={chatConversation} />
+        <ChatConversation
+          selectedContact={selectedContact}
+          contacts={contacts}
+        />
       )}
       {selectedContact ? (
         <>

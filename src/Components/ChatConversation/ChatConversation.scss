@@ -21,6 +21,13 @@
   }
   .myMessage {
     background-color: #00a884;
+    position: relative;
+    .statusMessage {
+      display: block;
+      position: absolute;
+      bottom: 22px;
+      right: 2px;
+    }
   }
 
   @keyframes enterMessage {

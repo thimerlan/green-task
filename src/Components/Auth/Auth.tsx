@@ -90,6 +90,12 @@ const Auth = (props: AuthProps) => {
             </div>
           </form>
         )}
+
+        {!loading && (
+          <a className="noAcc" href="https://green-api.com/" target="_blank">
+            I have no account yet.
+          </a>
+        )}
       </div>
     </div>
   );
