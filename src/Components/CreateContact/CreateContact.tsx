@@ -59,7 +59,6 @@ const CreateContact = ({ contacts, setContacts }: CreateContactProps) => {
       ...newContact,
       chatId: `${newContact.chatId.replace("+", "")}@c.us`,
     };
-
     if (
       updatedContact.chatId &&
       updatedContact.name &&

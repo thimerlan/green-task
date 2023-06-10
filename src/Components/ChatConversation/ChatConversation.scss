@@ -18,15 +18,40 @@
   }
   .theirMessage {
     background-color: #1c272d;
+    position: relative;
+	  padding: 1px;
+
+    .time {
+      font-size: 10px;
+      color: #8ab9d2;
+      font-weight: 575;
+      position: absolute;
+      right: 0;
+      top: -13px;
+    }
+    img {
+      width: 100%;
+      height: 100%;
+    }
+    a {
+      font-weight: 575;
+	  font-size: 15px;
+    }
   }
   .myMessage {
     background-color: #00a884;
     position: relative;
-    .statusMessage {
-      display: block;
+    .time {
+      font-size: 10px;
       position: absolute;
-      bottom: 22px;
-      right: 2px;
+      right: 0;
+      top: -13px;
+      font-weight: 575;
+      color: #d3d9dd;
+    }
+    img {
+      width: 100%;
+      height: 100%;
     }
   }
 

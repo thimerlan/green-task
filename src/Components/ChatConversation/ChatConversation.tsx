@@ -39,27 +39,49 @@ const ChatConversation = ({
           className="chatMessages"
           key={messages.theirMessageId || messages.myMessageId}
         >
-          <p
-            style={messages.theirMessage ? { padding: "4px" } : {}}
-            className="theirMessage"
-          >
-            {messages.theirMessage}
-          </p>
-          <p
-            style={messages.myMessage ? { padding: "4px" } : {}}
-            className="myMessage"
-          >
-            {messages.myMessage}
-            <span className="statusMessage">
-              {messages.status === "sent" || "" ? (
-                <BsCheck opacity={0.7} />
-              ) : messages.status === "delivered" ? (
-                <BsCheckAll opacity={0.7} color="red" />
-              ) : (
-                messages.status === "read" && <BsCheckAll fontSize={20} />
+          <div>
+            <p
+              style={messages.theirMessage ? { padding: "4px" } : {}}
+              className="theirMessage"
+            >
+              {messages.theirFile?.mimeType === "image/jpeg" && (
+                <img src={messages.theirFile?.downloadUrl} alt="image" />
               )}
-            </span>
-          </p>
+
+              {messages.theirFile?.mimeType === "application/pdf" && (
+                <a href={messages.theirFile?.downloadUrl} target="_blank">
+                  {messages.theirFile.fileName}
+                </a>
+              )}
+              {messages.theirMessage}
+
+              <span className="time">
+                {messages.theirMessage?.length !== 0 && messages.time}
+              </span>
+            </p>
+          </div>
+          <div>
+            <p
+              style={messages.myMessage ? { padding: "4px" } : {}}
+              className="myMessage"
+            >
+              {messages.myFile?.type === "image/jpeg" && (
+                <img
+                  src={URL.createObjectURL(messages.myFile as Blob)}
+                  alt="image"
+                />
+              )}
+              {messages.myFile?.type === "application/pdf" && (
+                <a href={URL.createObjectURL(messages.myFile)} target="_blank">
+                  {messages.myFile.name}
+                </a>
+              )}
+              {messages.myMessage}
+              <span className="time">
+                {messages.myMessage.length !== 0 && messages.time}
+              </span>
+            </p>
+          </div>
         </div>
       ))}
     </div>
