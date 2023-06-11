@@ -1,7 +1,6 @@
 import { IChatConversation, IContact } from "../../Interface/Interface";
 import "./ChatConversation.scss";
 import { useRef, useEffect, useState } from "react";
-import { BsCheck, BsCheckAll } from "react-icons/bs";
 interface ChatConversationProps {
   selectedContact: IContact | undefined;
   contacts: IContact[];
@@ -15,6 +14,10 @@ const ChatConversation = ({
   const [chatConversation, setChatConversation] = useState<
     IChatConversation[] | undefined
   >();
+  const [selectedImage, setSelectedImage] = useState<File | string | null>(
+    null
+  );
+
   useEffect(() => {
     if (conversationRef.current) {
       conversationRef.current.scrollTop = conversationRef.current.scrollHeight;
@@ -34,6 +37,20 @@ const ChatConversation = ({
 
   return (
     <div ref={conversationRef} className="chatConversation">
+      {selectedImage && (
+        <div onClick={() => setSelectedImage(null)} className="selectedImage">
+          <img
+            onClick={(e: React.MouseEvent<HTMLImageElement>) =>
+              e.stopPropagation()
+            }
+            src={
+              selectedImage instanceof File
+                ? URL.createObjectURL(selectedImage)
+                : selectedImage
+            }
+          />
+        </div>
+      )}
       {chatConversation?.map((messages) => (
         <div
           className="chatMessages"
@@ -45,13 +62,22 @@ const ChatConversation = ({
               className="theirMessage"
             >
               {messages.theirFile?.mimeType === "image/jpeg" && (
-                <img src={messages.theirFile?.downloadUrl} alt="image" />
+                <img
+                  onClick={() =>
+                    setSelectedImage(messages.theirFile?.downloadUrl as string)
+                  }
+                  src={messages.theirFile?.downloadUrl}
+                  alt="image"
+                />
               )}
 
               {messages.theirFile?.mimeType === "application/pdf" && (
-                <a href={messages.theirFile?.downloadUrl} target="_blank">
-                  {messages.theirFile.fileName}
-                </a>
+                <>
+                  <a href={messages.theirFile?.downloadUrl} target="_blank">
+                    {messages.theirFile.fileName}
+                  </a>
+                  <br />
+                </>
               )}
               {messages.theirMessage}
 
@@ -67,18 +93,26 @@ const ChatConversation = ({
             >
               {messages.myFile?.type === "image/jpeg" && (
                 <img
-                  src={URL.createObjectURL(messages.myFile as Blob)}
+                  onClick={() => setSelectedImage(messages.myFile)}
+                  src={URL.createObjectURL(messages.myFile)}
                   alt="image"
                 />
               )}
               {messages.myFile?.type === "application/pdf" && (
-                <a href={URL.createObjectURL(messages.myFile)} target="_blank">
-                  {messages.myFile.name}
-                </a>
+                <>
+                  <a
+                    href={URL.createObjectURL(messages.myFile)}
+                    target="_blank"
+                  >
+                    {messages.myFile.name}
+                  </a>
+                  <br />
+                </>
               )}
               {messages.myMessage}
               <span className="time">
-                {messages.myMessage.length !== 0 && messages.time}
+                {(messages.myMessage.length > 0 && messages.time) ||
+                  (messages.myFile && messages.time)}
               </span>
             </p>
           </div>

@@ -1,12 +1,5 @@
 import axios from "axios";
-import {
-  useState,
-  useEffect,
-  ChangeEvent,
-  useMemo,
-  useCallback,
-  useRef,
-} from "react";
+import { useState, useEffect, ChangeEvent, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaPaperclip } from "react-icons/fa";
 import "./Chat.scss";
