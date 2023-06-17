@@ -4,6 +4,7 @@ interface ContactsProps {
   handleContactClick: (contact: IContact) => void;
 }
 import { IContact } from "../../Interface/Interface";
+import { MdPictureAsPdf } from "react-icons/md";
 import "./Contacts.scss";
 const Contacts = ({
   contacts,
@@ -18,8 +19,8 @@ const Contacts = ({
         {contacts.length ? (
           contacts.map((contact) => (
             <div
-              onClick={() => handleContactClick(contact)}
               key={contact.chatId}
+              onClick={() => handleContactClick(contact)}
               className="contact"
               style={
                 contact.name === selectedContact?.name
@@ -28,6 +29,38 @@ const Contacts = ({
               }
             >
               {contact.name}
+              <div className="lastMessage">
+                <span>
+                  {contact.lastMessage?.message?.length > 18
+                    ? contact.lastMessage?.message.slice(0, 18).concat("...")
+                    : contact.lastMessage?.message}
+                  {contact.lastMessage?.myFile?.type === "image/jpeg" && (
+                    <img
+                      src={URL.createObjectURL(contact.lastMessage?.myFile)}
+                      alt="image"
+                    />
+                  )}
+                  {contact.lastMessage?.theirFile?.mimeType ===
+                    "image/jpeg" && (
+                    <img
+                      src={contact.lastMessage?.theirFile?.downloadUrl}
+                      alt={"image"}
+                    />
+                  )}
+
+                  {contact.lastMessage?.myFile?.type === "application/pdf" && (
+                    <>
+                      <MdPictureAsPdf color="green" size={20} />
+                    </>
+                  )}
+                  {contact.lastMessage?.theirFile?.mimeType ===
+                    "application/pdf" && (
+                    <>
+                      <MdPictureAsPdf color="green" size={20} />
+                    </>
+                  )}
+                </span>
+              </div>
             </div>
           ))
         ) : (

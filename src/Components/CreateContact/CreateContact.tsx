@@ -12,6 +12,7 @@ const CreateContact = ({ contacts, setContacts }: CreateContactProps) => {
   const [newContact, setNewContact] = useState<IContact>({
     chatId: "",
     name: "",
+    lastMessage: { myFile: null, theirFile: null, message: "" },
   });
   const [isValidNumber, setIsValidNumber] = useState<string>();
   const openModal = () => {
@@ -23,6 +24,7 @@ const CreateContact = ({ contacts, setContacts }: CreateContactProps) => {
     setNewContact({
       chatId: "",
       name: "",
+      lastMessage: { myFile: null, theirFile: null, message: "" },
     });
     setIsValidNumber("");
   };

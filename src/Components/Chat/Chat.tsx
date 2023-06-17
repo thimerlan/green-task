@@ -67,6 +67,10 @@ const Chat = (props: ChatProps) => {
 
           chatConversation.push(newChatMessage);
 
+          updatedContact.lastMessage = updatedContact.lastMessage || {};
+          updatedContact.lastMessage.message = message;
+          updatedContact.lastMessage.myFile = null;
+
           updatedContact.chatConversation = chatConversation;
           updatedContacts[updatedContactIndex] = updatedContact;
 
@@ -164,13 +168,21 @@ const Chat = (props: ChatProps) => {
               theirFile: messageData.fileMessageData || null,
               time: `${new Date().getHours()}:${new Date().getMinutes()}`,
             };
-
             chatConversation.push(newChatMessage);
+
+            updatedContact.lastMessage = updatedContact.lastMessage || {};
+            updatedContact.lastMessage.message =
+              messageData.textMessageData?.textMessage ||
+              messageData.fileMessageData?.caption;
+            updatedContact.lastMessage.theirFile =
+              messageData.fileMessageData || null;
+            updatedContact.lastMessage.myFile = null;
 
             updatedContact.chatConversation = chatConversation;
             updatedContacts[updatedContactIndex] = updatedContact;
 
             setContacts(updatedContacts);
+
             setSelectedContact((prevState) => {
               if (prevState) {
                 const updatedChatConversation: IChatConversation = {
@@ -259,6 +271,10 @@ const Chat = (props: ChatProps) => {
 
           chatConversation.push(newChatMessage);
 
+          updatedContact.lastMessage = updatedContact.lastMessage || {};
+          updatedContact.lastMessage.myFile = file;
+          updatedContact.lastMessage.theirFile = null;
+          updatedContact.lastMessage.message = value || "";
           updatedContact.chatConversation = chatConversation;
           updatedContacts[updatedContactIndex] = updatedContact;
 
